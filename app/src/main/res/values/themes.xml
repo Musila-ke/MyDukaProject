@@ -1,0 +1,32 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.MyDuka" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/royalblue</item>
+        <item name="colorPrimaryVariant">@color/black</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorSecondary">@color/lighterblue</item>
+        <item name="colorSecondaryVariant">@color/black</item>"
+        <item name="colorSurface">@color/perfectBlue</item>
+        <item name="colorOnSurface">@color/lightgray</item>
+        <item name="android:colorBackground">@color/white</item>
+        <item name="colorSurfaceVariant">@color/lightershadeblue</item>
+
+
+
+    </style>
+
+    <style name="Theme.MyDuka" parent="Base.Theme.MyDuka" />
+
+    <style name="Theme.App.SplashScreen" parent="Base.Theme.MyDuka">
+        <item name="android:windowSplashScreenBackground" tools:ignore="NewApi">@color/darkblue</item>
+        <item name="android:windowSplashScreenAnimatedIcon" tools:ignore="NewApi">@mipmap/is_myduka_splash_screen</item>
+        <item name="android:windowSplashScreenAnimationDuration" tools:ignore="NewApi">5000</item>
+        <item name="postSplashScreenTheme">@style/Base.Theme.MyDuka</item>
+
+    </style>
+
+
+
+
+</resources>
+

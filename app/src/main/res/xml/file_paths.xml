@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Internal cache (if you ever need it) -->
+    <cache-path
+        name="internal_cache"
+        path="." />
+
+    <!-- External cache (for camera + UCrop) -->
+    <external-cache-path
+        name="external_cache"
+        path="." />
+</paths>

@@ -1,0 +1,19 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.MyDuka" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brightskyblue</item>
+        <item name="colorPrimaryVariant">@color/white</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/softblue</item>
+        <item name="android:colorBackground">@color/deepblack</item>
+        <item name="colorSecondaryVariant">@color/white</item>"
+        <item name="colorSurface">@color/perfectBlue</item>
+        <item name="colorOnSurface">@color/white</item>
+        <item name="colorSurfaceVariant">@color/blackvariant</item>
+
+
+
+    </style>
+
+</resources>
+
