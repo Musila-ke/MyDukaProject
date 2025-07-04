@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.Timestamp
 
 class NotificationAdapter(
     private val onItemClick: ((NotificationDC) -> Unit)? = null
@@ -29,33 +30,37 @@ class NotificationAdapter(
         private val timestampTv = itemView.findViewById<TextView>(R.id.textTimestamp)
 
         fun bind(notification: NotificationDC) {
-            // 1) Content
-            titleTv.text   = notification.title
+            // Title and message
+            titleTv.text = notification.title
             messageTv.text = notification.message
 
-            // 2) Timestamp
+            // Timestamp (handles null and valid range)
+            val tsMillis = notification.timestamp?.toDate()?.time
             val now = System.currentTimeMillis()
-            timestampTv.text = if (notification.timestamp in 1..now) {
+
+            timestampTv.text = if (tsMillis != null && tsMillis in 1..now) {
                 DateUtils.getRelativeTimeSpanString(
-                    notification.timestamp, now, DateUtils.MINUTE_IN_MILLIS,
+                    tsMillis, now, DateUtils.MINUTE_IN_MILLIS,
                     DateUtils.FORMAT_ABBREV_RELATIVE
                 ).toString()
             } else {
                 "just now"
             }
 
-
-            // 4) Click forward
-            itemView.setOnClickListener { onItemClick?.invoke(notification) }
+            // Click listener
+            itemView.setOnClickListener {
+                onItemClick?.invoke(notification)
+            }
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        NotificationViewHolder(
-            LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_notification, parent, false)
-        )
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotificationViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_notification, parent, false)
+        return NotificationViewHolder(view)
+    }
 
-    override fun onBindViewHolder(holder: NotificationViewHolder, position: Int) =
+    override fun onBindViewHolder(holder: NotificationViewHolder, position: Int) {
         holder.bind(getItem(position))
+    }
 }

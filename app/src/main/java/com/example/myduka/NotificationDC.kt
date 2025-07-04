@@ -1,12 +1,13 @@
 package com.example.myduka
 
+import com.google.firebase.Timestamp
 import java.util.UUID
 
 data class NotificationDC(
     val id: String = UUID.randomUUID().toString(),
     val title: String = "",
     val message: String = "",
-    val timestamp: Long = 0L,
+    val timestamp: Timestamp? = null,
     val type: String = TYPE_ALL,
     val seen: Boolean = false      // ← new field
 ) {

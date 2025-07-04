@@ -107,9 +107,30 @@ class Notifications : AppCompatActivity() {
             .addSnapshotListener { snaps, err ->
                 if (err != null || snaps == null) return@addSnapshotListener
 
-                val newList = snaps.documents.mapNotNull {
-                    it.toObject(NotificationDC::class.java)
+                val newList = snaps.documents.mapNotNull { doc ->
+                    try {
+                        doc.toObject(NotificationDC::class.java)
+                    } catch (e: Exception) {
+                        // Fallback: manually construct the object if timestamp is a Long
+                        val data = doc.data ?: return@mapNotNull null
+
+                        val rawTimestamp = data["timestamp"]
+                        val timestamp: com.google.firebase.Timestamp? = when (rawTimestamp) {
+                            is Long -> com.google.firebase.Timestamp(rawTimestamp / 1000, ((rawTimestamp % 1000) * 1_000_000).toInt())
+                            is com.google.firebase.Timestamp -> rawTimestamp
+                            else -> null
+                        }
+
+                        NotificationDC(
+                            id = doc.id,
+                            type = data["type"] as? String ?: "",
+                            message = data["message"] as? String ?: "",
+                            seen = data["seen"] as? Boolean ?: false,
+                            timestamp = timestamp
+                        )
+                    }
                 }
+
                 notifications.clear()
                 notifications.addAll(newList)
                 updateListDisplay()
@@ -123,7 +144,7 @@ class Notifications : AppCompatActivity() {
             R.id.chipExpiry  -> notifications.filter { it.type == NotificationDC.TYPE_EXPIRY }
             R.id.chipSales   -> notifications.filter { it.type == NotificationDC.TYPE_SALES }
             else             -> notifications
-        }.sortedByDescending { it.timestamp }
+        }.sortedByDescending { it.timestamp?.toDate()?.time ?: 0L }
 
         adapter.submitList(ArrayList(filtered)) // fresh reference avoids bugs
     }

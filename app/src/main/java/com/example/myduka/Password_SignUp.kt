@@ -74,7 +74,8 @@ class Password_SignUp : AppCompatActivity() {
             startActivity(Intent(this, Dashboard::class.java))
             finish()
         } catch (e: Exception) {
-            Toast.makeText(this, "Failed to save PIN", Toast.LENGTH_SHORT).show()
+            e.printStackTrace()
+            Toast.makeText(this, "Failed to save PIN. Please try again.", Toast.LENGTH_SHORT).show()
             pinBuilder.clear()
             updatePinField()
         }

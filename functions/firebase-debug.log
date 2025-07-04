@@ -1,0 +1,119 @@
+[debug] [2025-07-02T12:41:24.123Z] ----------------------------------------------------------------------
+[debug] [2025-07-02T12:41:24.127Z] Command:       /usr/local/bin/node /Users/musila/.npm-global/bin/firebase deploy --only functions
+[debug] [2025-07-02T12:41:24.127Z] CLI Version:   14.9.0
+[debug] [2025-07-02T12:41:24.127Z] Platform:      darwin
+[debug] [2025-07-02T12:41:24.127Z] Node Version:  v22.16.0
+[debug] [2025-07-02T12:41:24.128Z] Time:          Wed Jul 02 2025 15:41:24 GMT+0300 (East Africa Time)
+[debug] [2025-07-02T12:41:24.128Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-07-02T12:41:24.407Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-07-02T12:41:24.407Z] > authorizing via signed-in user (kelvinmusilamaingi@gmail.com)
+[debug] [2025-07-02T12:41:24.407Z] [iam] checking project myduka-df394 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2025-07-02T12:41:24.409Z] Checked if tokens are valid: true, expires at: 1751463035191
+[debug] [2025-07-02T12:41:24.409Z] Checked if tokens are valid: true, expires at: 1751463035191
+[debug] [2025-07-02T12:41:24.410Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/myduka-df394:testIamPermissions [none]
+[debug] [2025-07-02T12:41:24.410Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/myduka-df394:testIamPermissions x-goog-quota-user=projects/myduka-df394
+[debug] [2025-07-02T12:41:24.411Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/myduka-df394:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2025-07-02T12:41:26.421Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/myduka-df394:testIamPermissions 200
+[debug] [2025-07-02T12:41:26.421Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/myduka-df394:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2025-07-02T12:41:26.422Z] Checked if tokens are valid: true, expires at: 1751463035191
+[debug] [2025-07-02T12:41:26.422Z] Checked if tokens are valid: true, expires at: 1751463035191
+[debug] [2025-07-02T12:41:26.422Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/myduka-df394/serviceAccounts/myduka-df394@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2025-07-02T12:41:26.422Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/myduka-df394/serviceAccounts/myduka-df394@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2025-07-02T12:41:28.232Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/myduka-df394/serviceAccounts/myduka-df394@appspot.gserviceaccount.com:testIamPermissions 200
+[debug] [2025-07-02T12:41:28.232Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/myduka-df394/serviceAccounts/myduka-df394@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[info] 
+[info] === Deploying to 'myduka-df394'...
+[info] 
+[info] i  deploying functions 
+[info] Running command: cd functions && npm run lint
+[info] ✔  functions: Finished running predeploy script. 
+[debug] [2025-07-02T12:41:29.461Z] Checked if tokens are valid: true, expires at: 1751463035191
+[debug] [2025-07-02T12:41:29.461Z] Checked if tokens are valid: true, expires at: 1751463035191
+[debug] [2025-07-02T12:41:29.461Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/myduka-df394/services/cloudresourcemanager.googleapis.com [none]
+[debug] [2025-07-02T12:41:29.461Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/myduka-df394/services/cloudresourcemanager.googleapis.com x-goog-quota-user=projects/myduka-df394
+[debug] [2025-07-02T12:41:31.546Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/myduka-df394/services/cloudresourcemanager.googleapis.com 200
+[debug] [2025-07-02T12:41:31.546Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/myduka-df394/services/cloudresourcemanager.googleapis.com [omitted]
+[debug] [2025-07-02T12:41:31.559Z] Checked if tokens are valid: true, expires at: 1751463035191
+[debug] [2025-07-02T12:41:31.559Z] Checked if tokens are valid: true, expires at: 1751463035191
+[debug] [2025-07-02T12:41:31.559Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/myduka-df394 [none]
+[debug] [2025-07-02T12:41:33.039Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/myduka-df394 200
+[debug] [2025-07-02T12:41:33.039Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/myduka-df394 {"projectNumber":"265377863805","projectId":"myduka-df394","lifecycleState":"ACTIVE","name":"MyDuka","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-03-15T13:01:20.807505Z"}
+[info] i  functions: preparing codebase default for deployment 
+[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
+[debug] [2025-07-02T12:41:33.042Z] Checked if tokens are valid: true, expires at: 1751463035191
+[debug] [2025-07-02T12:41:33.042Z] Checked if tokens are valid: true, expires at: 1751463035191
+[debug] [2025-07-02T12:41:33.043Z] Checked if tokens are valid: true, expires at: 1751463035191
+[debug] [2025-07-02T12:41:33.043Z] Checked if tokens are valid: true, expires at: 1751463035191
+[info] i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
+[debug] [2025-07-02T12:41:33.043Z] Checked if tokens are valid: true, expires at: 1751463035191
+[debug] [2025-07-02T12:41:33.043Z] Checked if tokens are valid: true, expires at: 1751463035191
+[info] i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled... 
+[debug] [2025-07-02T12:41:33.044Z] Checked if tokens are valid: true, expires at: 1751463035191
+[debug] [2025-07-02T12:41:33.044Z] Checked if tokens are valid: true, expires at: 1751463035191
+[debug] [2025-07-02T12:41:33.044Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/myduka-df394/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-07-02T12:41:33.044Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/myduka-df394/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/myduka-df394
+[debug] [2025-07-02T12:41:33.045Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/myduka-df394/services/runtimeconfig.googleapis.com [none]
+[debug] [2025-07-02T12:41:33.045Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/myduka-df394/services/runtimeconfig.googleapis.com x-goog-quota-user=projects/myduka-df394
+[debug] [2025-07-02T12:41:33.047Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/myduka-df394/services/cloudbuild.googleapis.com [none]
+[debug] [2025-07-02T12:41:33.047Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/myduka-df394/services/cloudbuild.googleapis.com x-goog-quota-user=projects/myduka-df394
+[debug] [2025-07-02T12:41:33.050Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/myduka-df394/services/artifactregistry.googleapis.com [none]
+[debug] [2025-07-02T12:41:33.050Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/myduka-df394/services/artifactregistry.googleapis.com x-goog-quota-user=projects/myduka-df394
+[debug] [2025-07-02T12:41:34.688Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/myduka-df394/services/runtimeconfig.googleapis.com 200
+[debug] [2025-07-02T12:41:34.688Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/myduka-df394/services/runtimeconfig.googleapis.com [omitted]
+[debug] [2025-07-02T12:41:34.702Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/myduka-df394/services/cloudfunctions.googleapis.com 200
+[debug] [2025-07-02T12:41:34.703Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/myduka-df394/services/cloudfunctions.googleapis.com [omitted]
+[info] ✔  functions: required API cloudfunctions.googleapis.com is enabled 
+[debug] [2025-07-02T12:41:34.717Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/myduka-df394/services/cloudbuild.googleapis.com 200
+[debug] [2025-07-02T12:41:34.717Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/myduka-df394/services/cloudbuild.googleapis.com [omitted]
+[info] ✔  functions: required API cloudbuild.googleapis.com is enabled 
+[debug] [2025-07-02T12:41:34.733Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/myduka-df394/services/artifactregistry.googleapis.com 200
+[debug] [2025-07-02T12:41:34.733Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/myduka-df394/services/artifactregistry.googleapis.com [omitted]
+[info] ✔  artifactregistry: required API artifactregistry.googleapis.com is enabled 
+[debug] [2025-07-02T12:41:34.745Z] Checked if tokens are valid: true, expires at: 1751463035191
+[debug] [2025-07-02T12:41:34.745Z] Checked if tokens are valid: true, expires at: 1751463035191
+[debug] [2025-07-02T12:41:34.745Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/myduka-df394/adminSdkConfig [none]
+[debug] [2025-07-02T12:41:35.609Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/myduka-df394/adminSdkConfig 200
+[debug] [2025-07-02T12:41:35.609Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/myduka-df394/adminSdkConfig {"projectId":"myduka-df394","storageBucket":"myduka-df394.firebasestorage.app"}
+[debug] [2025-07-02T12:41:35.610Z] Checked if tokens are valid: true, expires at: 1751463035191
+[debug] [2025-07-02T12:41:35.610Z] Checked if tokens are valid: true, expires at: 1751463035191
+[debug] [2025-07-02T12:41:35.610Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/myduka-df394/configs [none]
+[debug] [2025-07-02T12:41:36.241Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/myduka-df394/configs 200
+[debug] [2025-07-02T12:41:36.241Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/myduka-df394/configs {}
+[debug] [2025-07-02T12:41:36.243Z] Validating nodejs source
+[debug] [2025-07-02T12:41:39.063Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "22"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^13.4.0",
+    "firebase-functions": "^6.3.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "eslint-config-google": "^0.14.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "private": true
+}
+[debug] [2025-07-02T12:41:39.063Z] Building nodejs source
+[info] i  functions: Loading and analyzing source code for codebase default to determine what to deploy 
+[debug] [2025-07-02T12:41:39.065Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-07-02T12:41:39.075Z] Found firebase-functions binary at '/Users/musila/AndroidStudioProjects/MyDuka/functions/node_modules/.bin/firebase-functions'
+[debug] [2025-07-02T12:41:39.080Z] Error: spawn /Users/musila/AndroidStudioProjects/MyDuka/functions/node_modules/.bin/firebase-functions EACCES
+    at ChildProcess._handle.onexit (node:internal/child_process:285:19)
+    at onErrorNT (node:internal/child_process:483:16)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+[error] 
+[error] Error: An unexpected error has occurred.

@@ -25,7 +25,8 @@ class PasswordLogin : AppCompatActivity() {
         }
 
         if (!PinManager.hasPin(this)) {
-            Toast.makeText(this, "No PIN found", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "No PIN found. Please create one.", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, Password_SignUp::class.java))
             finish()
             return
         }
@@ -87,9 +88,18 @@ class PasswordLogin : AppCompatActivity() {
                 updatePinField()
             }
         } catch (e: Exception) {
-            Toast.makeText(this, "Error verifying PIN", Toast.LENGTH_SHORT).show()
-            pinBuilder.clear()
-            updatePinField()
+            // Key is invalidated (likely due to uninstall/reinstall)
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+            if (uid != null) {
+                getSharedPreferences("app_prefs_$uid", MODE_PRIVATE)
+                    .edit()
+                    .clear()
+                    .apply()
+            }
+
+            Toast.makeText(this, "PIN was reset. Please create a new one.", Toast.LENGTH_LONG).show()
+            startActivity(Intent(this, Password_SignUp::class.java))
+            finish()
         }
     }
 }

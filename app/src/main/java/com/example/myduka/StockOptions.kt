@@ -22,9 +22,7 @@ class StockOptions : AppCompatActivity() {
             startActivity(intent)
         }
 
-        stockOptionsBinding.buttonViewProducts.setOnClickListener {
 
-        }
         stockOptionsBinding.productUnits.setOnClickListener {
             startActivity(Intent(this, AddProductUnits::class.java))
         }

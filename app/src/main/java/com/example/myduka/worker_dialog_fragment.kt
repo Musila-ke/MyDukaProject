@@ -82,7 +82,8 @@ class worker_dialog_fragment : DialogFragment() {
                 id        = notifRef.id,
                 title     = "New Worker Added",
                 message   = "$workerName has been added to $branchName",
-                timestamp = System.currentTimeMillis(),
+                timestamp = com.google.firebase.Timestamp.now(),
+
                 type      = NotificationDC.TYPE_WORKERS
             )
             notifRef.set(notification)

@@ -83,6 +83,6 @@ dependencies {
     implementation ("androidx.camera:camera-lifecycle:1.4.2")
     implementation ("androidx.camera:camera-view:1.4.2")
 
-    implementation ("com.google.guava:guava:33.3.1-jre")
+    implementation ("com.google.guava:guava:33.4.8-jre")
     implementation ("androidx.camera:camera-extensions:1.4.2")
 }

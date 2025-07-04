@@ -43,13 +43,17 @@ object KeyStoreHelper {
     }
 
     fun decrypt(iv: ByteArray, ciphertext: ByteArray): ByteArray {
-        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-        cipher.init(
-            Cipher.DECRYPT_MODE,
-            getOrCreateSecretKey(),
-            GCMParameterSpec(128, iv)
-        )
-        return cipher.doFinal(ciphertext)
+        return try {
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            cipher.init(
+                Cipher.DECRYPT_MODE,
+                getOrCreateSecretKey(),
+                GCMParameterSpec(128, iv)
+            )
+            cipher.doFinal(ciphertext)
+        } catch (e: Exception) {
+            throw IllegalStateException("Key is invalidated or unavailable", e)
+        }
     }
 }
 
@@ -93,17 +97,24 @@ object PinManager {
 
         val prefsName = "${BASE_PREFS}_$uid"
         val prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
-        val ivB64   = prefs.getString(KEY_SALT_IV,   null) ?: return false
-        val dataB64 = prefs.getString(KEY_SALT_DATA, null) ?: return false
-        val hashB64 = prefs.getString(KEY_HASH,      null) ?: return false
 
-        val iv         = Base64.decode(ivB64,   Base64.NO_WRAP)
-        val ciphertext = Base64.decode(dataB64, Base64.NO_WRAP)
-        val salt       = KeyStoreHelper.decrypt(iv, ciphertext)
-        val expected   = Base64.decode(hashB64, Base64.NO_WRAP)
-        val attemptHash = pbkdf2(attempt, salt)
+        return try {
+            val ivB64   = prefs.getString(KEY_SALT_IV,   null) ?: return false
+            val dataB64 = prefs.getString(KEY_SALT_DATA, null) ?: return false
+            val hashB64 = prefs.getString(KEY_HASH,      null) ?: return false
 
-        return MessageDigest.isEqual(expected, attemptHash)
+            val iv         = Base64.decode(ivB64,   Base64.NO_WRAP)
+            val ciphertext = Base64.decode(dataB64, Base64.NO_WRAP)
+            val salt       = KeyStoreHelper.decrypt(iv, ciphertext)
+            val expected   = Base64.decode(hashB64, Base64.NO_WRAP)
+            val attemptHash = pbkdf2(attempt, salt)
+
+            MessageDigest.isEqual(expected, attemptHash)
+        } catch (e: Exception) {
+            // If decryption fails (KeyStore key deleted or corrupted), clear prefs
+            prefs.edit().clear().apply()
+            false
+        }
     }
 
     private fun pbkdf2(pass: String, salt: ByteArray): ByteArray {
