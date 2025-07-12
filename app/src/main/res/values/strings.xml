@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MyDuka</string>
+    <string name="app_name">MyDuka(Admin)</string>
     <string name="signIn_sup">Already have an account?    <font color="#5483B3"><b><u>log in</u></b></font></string>
 
 

@@ -3,6 +3,7 @@ package com.example.myduka
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -33,6 +34,10 @@ class AddProductUnits : AppCompatActivity() {
 
         setupSearch()
         loadBranches()
+
+        binding.warning.setOnClickListener {
+            startActivity(Intent(Intent(this,ManageExpiredProducts::class.java)))
+        }
     }
 
     private fun setupSearch() {
@@ -104,17 +109,11 @@ class AddProductUnits : AppCompatActivity() {
                     Toast.makeText(this, "Could not load products", Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
-                val list = snap?.map { doc ->
-                    Product(
-                        id = doc.id,
-                        name = doc.getString("name").orEmpty(),
-                        description = doc.getString("description").orEmpty(),
-                        price = doc.getDouble("price") ?: 0.0,
-                        imageUrl = doc.getString("imageUrl").orEmpty(),
-                        discountPercent = doc.getDouble("discountPercent"),
-                        discountedPrice = doc.getDouble("discountedPrice")
-                    )
+                val list = snap?.documents?.mapNotNull { doc ->
+                    doc.toObject(Product::class.java)?.copy(id = doc.id)
                 }.orEmpty()
+                val hasExpired = list.any { it.hasExpiredUnits }
+                binding.warning.visibility = if (hasExpired) View.VISIBLE else View.GONE
                 adapter.updateData(list)
             }
     }

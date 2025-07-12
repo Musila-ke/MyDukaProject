@@ -129,8 +129,15 @@ exports.checkExpiredProducts = onSchedule(
               timestamp: FieldValue.serverTimestamp(),
               seen: false,
             };
-
+            // Push notification
             await notifRef.set(notifData);
+
+            // Update branchproduct to mark it has expired units
+            await db
+                .collection("users").doc(uid)
+                .collection("branches").doc(branchId)
+                .collection("branchproducts").doc(productId)
+                .update({hasExpiredUnits: true});
 
             // Push notification
             await getMessaging().send({

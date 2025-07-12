@@ -57,16 +57,50 @@ class AddUnits : AppCompatActivity() {
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
-        binding.chipGroupMode.setOnCheckedChangeListener { _, checkedId ->
-            val isBarcode = checkedId == R.id.chipBarcode
-            binding.groupWithBarcode.visibility = if (isBarcode) View.VISIBLE else View.GONE
-            binding.tilExpiryWithBarcode.visibility = if (isBarcode) View.VISIBLE else View.GONE
-            binding.previewView.visibility = if (isBarcode) View.VISIBLE else View.GONE
+        binding.chipGroupMode.setOnCheckedStateChangeListener { group, checkedIds ->
+            val checkedId = checkedIds.firstOrNull()
 
-            binding.groupNoBarcode.visibility = if (checkedId == R.id.chipNoBarcode) View.VISIBLE else View.GONE
-            binding.groupService.visibility = if (checkedId == R.id.chipService) View.VISIBLE else View.GONE
+            when (checkedId) {
+                R.id.chipBarcode -> {
+                    binding.groupWithBarcode.visibility = View.VISIBLE
+                    binding.tilExpiryWithBarcode.visibility = View.VISIBLE
+                    binding.previewView.visibility = View.VISIBLE
 
-            if (isBarcode) startCamera() else stopCamera()
+                    binding.groupNoBarcode.visibility = View.GONE
+                    binding.groupService.visibility = View.GONE
+
+                    startCamera()
+                }
+
+                R.id.chipNoBarcode -> {
+                    binding.groupWithBarcode.visibility = View.GONE
+                    binding.tilExpiryWithBarcode.visibility = View.GONE
+                    binding.previewView.visibility = View.GONE
+
+                    binding.groupNoBarcode.visibility = View.VISIBLE
+                    binding.groupService.visibility = View.GONE
+
+                    stopCamera()
+                }
+
+                R.id.chipService -> {
+                    binding.groupWithBarcode.visibility = View.GONE
+                    binding.tilExpiryWithBarcode.visibility = View.GONE
+                    binding.previewView.visibility = View.GONE
+
+                    binding.groupNoBarcode.visibility = View.GONE
+                    binding.groupService.visibility = View.VISIBLE
+
+                    stopCamera()
+                }
+
+                else -> {
+                    binding.groupWithBarcode.visibility = View.GONE
+                    binding.groupNoBarcode.visibility = View.GONE
+                    binding.groupService.visibility = View.GONE
+                    stopCamera()
+                }
+            }
         }
 
         binding.chipBarcode.isChecked = true
@@ -147,7 +181,6 @@ class AddUnits : AppCompatActivity() {
             try {
                 unitsRef.add(mapOf("barcode" to code, "expiryDate" to expiryTs)).await()
 
-                // ✅ Increment quantity by 1
                 incrementQuantity(
                     db = FirebaseFirestore.getInstance(),
                     uid = FirebaseAuth.getInstance().currentUser!!.uid,
@@ -196,7 +229,6 @@ class AddUnits : AppCompatActivity() {
                     batch.commit().await()
                 }
 
-                // ✅ Increment quantity by batch size
                 incrementQuantity(
                     db = db,
                     uid = FirebaseAuth.getInstance().currentUser!!.uid,
@@ -261,7 +293,6 @@ class AddUnits : AppCompatActivity() {
     }
 
     @androidx.annotation.OptIn(ExperimentalGetImage::class)
-    @OptIn(ExperimentalGetImage::class)
     private fun processImageProxy(imageProxy: ImageProxy) {
         try {
             if (!isScanningEnabled) return
@@ -313,3 +344,4 @@ class AddUnits : AppCompatActivity() {
         cameraExecutor.shutdown()
     }
 }
+

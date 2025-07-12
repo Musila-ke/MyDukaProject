@@ -66,6 +66,18 @@ class AddStock : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddStockBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        // Setup for the Type spinner
+        val typeOptions = listOf("Product", "Service")
+        val typeAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            typeOptions
+        ).also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
+        binding.typeSpinner.adapter = typeAdapter
+
+        // Setup for the Lifespan spinner
         val lifespanOptions = listOf(
             "None",
             "Very Perishable (Days to 2 Weeks)",
@@ -73,18 +85,13 @@ class AddStock : AppCompatActivity() {
             "Medium Lifespan (3 Months to 1 Year)",
             "Long Lifespan (1 to 3 Years)",
             "Very Long Lifespan (3+ Years)"
-
         )
-
-        val spinnerAdapter = ArrayAdapter(
+        val lifespanAdapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_item,
             lifespanOptions
         ).also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
-
-        binding.lifespanSpinner.adapter = spinnerAdapter
-
-        setContentView(binding.root)
+        binding.lifespanSpinner.adapter = lifespanAdapter
 
         setupBranchChips()
 
@@ -245,14 +252,15 @@ class AddStock : AppCompatActivity() {
                         .child("users/$uid/branches/$branchId/branchproducts/$productId/profile.jpg")
                     imgRef.putFile(profile).await()
                     val url = imgRef.downloadUrl.await().toString()
+
+                    val type = binding.typeSpinner.selectedItem as? String
                     val lifespanCategory = binding.lifespanSpinner.selectedItem as? String
 
-                    if (lifespanCategory == null) {
-                        Toast.makeText(this@AddStock, "Error reading lifespan category", Toast.LENGTH_SHORT).show()
+                    if (lifespanCategory == null || type == null) {
+                        Toast.makeText(this@AddStock, "Error reading type or lifespan category", Toast.LENGTH_SHORT).show()
                         resetSaveUI()
                         return@launch
                     }
-
 
                     val data = mapOf(
                         "id" to productId,
@@ -261,13 +269,14 @@ class AddStock : AppCompatActivity() {
                         "price" to price,
                         "VAT" to vatPercent,
                         "imageUrl" to url,
+                        "type" to type,
                         "lifespanCategory" to lifespanCategory,
                         "quantity" to 0
                     )
                     productDoc.set(data).await()
 
                     cleanupTempFiles()
-                    Toast.makeText(this@AddStock, "Product saved!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AddStock, "Saved!", Toast.LENGTH_SHORT).show()
                     finish()
                 } catch (e: Exception) {
                     Log.e("AddStockSave", "failed", e)

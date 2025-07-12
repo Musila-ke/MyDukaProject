@@ -75,6 +75,8 @@ class ProductAdapter(
         private val submitDiscIv: ImageView = view.findViewById(R.id.submitDiscount)
         private val discLabelTv: TextView = view.findViewById(R.id.textViewDiscountedPriceDisplay)
         private val discPriceTv: TextView = view.findViewById(R.id.textViewDiscountedPrice)
+        private val textView30: TextView = view.findViewById(R.id.textView30)
+        private val addUnit: ImageView = view.findViewById(R.id.addUnit)
 
         private lateinit var currentProductId: String
         private var listener: ListenerRegistration? = null
@@ -86,17 +88,30 @@ class ProductAdapter(
             priceTv.text = String.format("%.2f", p.price)
             Glide.with(thumb).load(p.imageUrl).centerCrop().into(thumb)
 
-            // Low stock listener
-            listener?.remove()
-            listener = db.collection("users").document(uid)
-                .collection("branches").document(branchId)
-                .collection("branchproducts").document(currentProductId)
-                .collection("units")
-                .addSnapshotListener { snap, _ ->
-                    val count = snap?.size() ?: 0
-                    quantityTv.text = count.toString()
-                    lowStockTv.visibility = if (count <= 5) View.VISIBLE else View.INVISIBLE
-                }
+            if (p.type == "Service") {
+                quantityTv.visibility = View.GONE
+                lowStockTv.visibility = View.GONE
+                textView30.visibility = View.GONE
+                addUnit.visibility = View.GONE
+
+            } else {
+                quantityTv.visibility = View.VISIBLE
+                lowStockTv.visibility = View.VISIBLE
+                textView30.visibility = View.VISIBLE
+                addUnit.visibility = View.VISIBLE
+
+                listener?.remove()
+                listener = db.collection("users").document(uid)
+                    .collection("branches").document(branchId)
+                    .collection("branchproducts").document(currentProductId)
+                    .collection("units")
+                    .addSnapshotListener { snap, _ ->
+                        val count = snap?.size() ?: 0
+                        quantityTv.text = count.toString()
+                        lowStockTv.visibility = if (count <= 5) View.VISIBLE else View.INVISIBLE
+                    }
+            }
+
 
             // Always show discount UI if saved
             discountEt.setText(p.discountPercent?.toInt()?.toString() ?: "")
