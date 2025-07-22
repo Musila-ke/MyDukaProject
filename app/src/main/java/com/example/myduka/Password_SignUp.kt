@@ -72,7 +72,7 @@ class Password_SignUp : AppCompatActivity() {
             PinManager.setPin(this, pinBuilder.toString())
             Toast.makeText(this, "PIN created successfully", Toast.LENGTH_SHORT).show()
             startActivity(Intent(this, Dashboard::class.java))
-            finish()
+            finish() // prevent returning to PIN setup
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(this, "Failed to save PIN. Please try again.", Toast.LENGTH_SHORT).show()

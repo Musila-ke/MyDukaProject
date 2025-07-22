@@ -20,9 +20,8 @@ class SignUp : AppCompatActivity() {
     private val databaseReference = database.collection("users").document()
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
-    // for polling verification
     private val handler = Handler(Looper.getMainLooper())
-    private val checkInterval = 5000L // 5 seconds
+    private val checkInterval = 5000L
     private lateinit var verificationCheck: Runnable
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +38,7 @@ class SignUp : AppCompatActivity() {
 
         signupBinding.textViewLogin.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
+            finish() // don’t allow back to SignUp once going to Login
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -49,9 +49,9 @@ class SignUp : AppCompatActivity() {
     }
 
     private fun saveUser() {
-        val userName = signupBinding.editTextFullName.text.toString().trim()
-        val email = signupBinding.editTextEmail.text.toString().trim()
-        val password = signupBinding.editTextPassword.text.toString().trim()
+        val userName    = signupBinding.editTextFullName.text.toString().trim()
+        val email       = signupBinding.editTextEmail.text.toString().trim()
+        val password    = signupBinding.editTextPassword.text.toString().trim()
         val companyName = signupBinding.editTextCompanyName.text.toString().trim()
         val phoneNumber = signupBinding.editTextPhonenumber.text.toString().trim()
 
@@ -66,98 +66,80 @@ class SignUp : AppCompatActivity() {
 
         auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener { authResult ->
-                val id = databaseReference.id
                 val uid = authResult.user?.uid
-                if (uid != null) {
-                    val user = SignUpDTC(
-                        userName,
-                        companyName,
-                        email,
-                        id,
-                        phoneNumber,
-                        uid
-                    )
-                    database.collection("users").document(uid)
-                        .set(user)
-                        .addOnSuccessListener {
-                            sendVerificationEmail()
-                        }
-                        .addOnFailureListener { e ->
-                            signupBinding.progressBarSignUp.visibility = View.GONE
-                            signupBinding.buttonSignUp.isEnabled = true
-                            Toast.makeText(this, "Failed to save user: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
-                        }
-                } else {
-                    signupBinding.progressBarSignUp.visibility = View.GONE
-                    signupBinding.buttonSignUp.isEnabled = true
+                if (uid == null) {
                     Toast.makeText(this, "UID not available", Toast.LENGTH_SHORT).show()
+                    resetSignupUI()
+                    return@addOnSuccessListener
                 }
+
+                val user = SignUpDTC(userName, companyName, email, databaseReference.id, phoneNumber, uid)
+                database.collection("users").document(uid)
+                    .set(user)
+                    .addOnSuccessListener { sendVerificationEmail() }
+                    .addOnFailureListener {
+                        Toast.makeText(this, "Failed to save user: ${it.localizedMessage}", Toast.LENGTH_SHORT).show()
+                        resetSignupUI()
+                    }
             }
-            .addOnFailureListener { e ->
-                signupBinding.progressBarSignUp.visibility = View.GONE
-                signupBinding.buttonSignUp.isEnabled = true
-                Toast.makeText(this, "Registration failed: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener {
+                Toast.makeText(this, "Registration failed: ${it.localizedMessage}", Toast.LENGTH_SHORT).show()
+                resetSignupUI()
             }
     }
 
+    private fun resetSignupUI() {
+        signupBinding.progressBarSignUp.visibility = View.GONE
+        signupBinding.buttonSignUp.isEnabled = true
+    }
+
     private fun sendVerificationEmail() {
-        val user = auth.currentUser
-        user?.sendEmailVerification()
-            ?.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Toast.makeText(
-                        this,
-                        "Verification email sent to ${user.email}. Please verify your email.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    startVerificationPolling()
-                } else {
-                    signupBinding.progressBarSignUp.visibility = View.GONE
-                    signupBinding.buttonSignUp.isEnabled = true
-                    Toast.makeText(
-                        this,
-                        "Failed to send verification email: ${task.exception?.message}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
+        auth.currentUser?.sendEmailVerification()?.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Toast.makeText(
+                    this,
+                    "Verification email sent to ${auth.currentUser?.email}. Please verify your email.",
+                    Toast.LENGTH_LONG
+                ).show()
+                startVerificationPolling()
+            } else {
+                Toast.makeText(
+                    this,
+                    "Failed to send verification email: ${task.exception?.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+                resetSignupUI()
             }
+        }
     }
 
     private fun startVerificationPolling() {
         verificationCheck = object : Runnable {
             override fun run() {
-                val user = auth.currentUser
-                user?.reload()?.addOnCompleteListener { reloadTask ->
-                    if (reloadTask.isSuccessful) {
-                        if (user.isEmailVerified) {
-                            // Email verified, proceed to Dashboard
-                            handler.removeCallbacks(this)
-                            Toast.makeText(
-                                this@SignUp,
-                                "Email verified successfully!",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            startActivity(Intent(this@SignUp, Password_SignUp::class.java))
-                        } else {
-                            // Not verified yet, check again later
-                            handler.postDelayed(this, checkInterval)
-                        }
-                    } else {
-                        // Handle reload failure
-                        signupBinding.progressBarSignUp.visibility = View.GONE
-                        signupBinding.buttonSignUp.isEnabled = true
+                auth.currentUser?.reload()?.addOnCompleteListener { reloadTask ->
+                    if (!reloadTask.isSuccessful) {
                         Toast.makeText(
                             this@SignUp,
                             "Failed to check verification status: ${reloadTask.exception?.message}",
                             Toast.LENGTH_SHORT
                         ).show()
+                        resetSignupUI()
+                        return@addOnCompleteListener
+                    }
+
+                    if (auth.currentUser?.isEmailVerified == true) {
+                        handler.removeCallbacks(this)
+                        Toast.makeText(this@SignUp, "Email verified successfully!", Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this@SignUp, Password_SignUp::class.java))
+                        finish() // remove SignUp from back‑stack
+                    } else {
+                        handler.postDelayed(this, checkInterval)
                     }
                 }
             }
         }
         handler.postDelayed(verificationCheck, checkInterval)
     }
-
 
     override fun onDestroy() {
         super.onDestroy()

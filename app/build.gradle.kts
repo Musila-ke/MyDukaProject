@@ -8,14 +8,18 @@ plugins {
     alias(libs.plugins.google.firebase.firebase.perf)
 }
 
+configurations.all {
+    exclude(group = "commons-logging", module = "commons-logging")
+}
+
 android {
     namespace = "com.example.myduka"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.myduka"
-        minSdk = 24
-        targetSdk = 35
+        minSdk = 26
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -37,7 +41,12 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions { jvmTarget = "11" }
+
+    packagingOptions {
+        resources.excludes.add("META-INF/LGPL2.1")
+    }
 }
+
 
 dependencies {
     implementation(libs.androidx.core.ktx)
@@ -62,27 +71,31 @@ dependencies {
 
 
 
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-    implementation("com.google.firebase:firebase-appcheck-playintegrity:18.0.0")
+    implementation(libs.glide)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     // OSS-Licenses runtime library
-    implementation("com.google.android.gms:play-services-oss-licenses:17.1.0")
+    implementation(libs.play.services.oss.licenses)
 
-    implementation("com.github.yalantis:ucrop:2.2.10")
+    implementation(libs.ucrop)
 
-    implementation ("com.google.mlkit:text-recognition:16.0.1")
+    implementation (libs.text.recognition)
 
-    implementation ("com.google.mlkit:barcode-scanning:17.3.0")
+    implementation (libs.barcode.scanning)
 
-    implementation ("androidx.camera:camera-core:1.4.2")
-    implementation ("androidx.camera:camera-camera2:1.4.2")
-    implementation ("androidx.camera:camera-lifecycle:1.4.2")
-    implementation ("androidx.camera:camera-view:1.4.2")
+    implementation (libs.androidx.camera.core)
+    implementation (libs.androidx.camera.camera2)
+    implementation (libs.androidx.camera.lifecycle)
+    implementation (libs.androidx.camera.view)
 
-    implementation ("com.google.guava:guava:33.4.8-jre")
-    implementation ("androidx.camera:camera-extensions:1.4.2")
+    implementation (libs.guava)
+    implementation (libs.androidx.camera.extensions)
+
+    implementation("androidx.security:security-crypto:1.1.0-beta01")
+
+
+
 }

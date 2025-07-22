@@ -4,8 +4,10 @@ import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
@@ -28,11 +30,14 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.io.File
+import java.io.FileOutputStream
 
 class Profile : AppCompatActivity() {
 
@@ -40,17 +45,16 @@ class Profile : AppCompatActivity() {
     private lateinit var pickImageLauncher: ActivityResultLauncher<String>
     private lateinit var workerAdapter: WorkerAdapter
 
-    private val auth    = FirebaseAuth.getInstance()
-    private val db      = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+    private val db = FirebaseFirestore.getInstance()
     private val storage = FirebaseStorage.getInstance()
 
-    private var userListener: ListenerRegistration?    = null
+    private var userListener: ListenerRegistration? = null
     private var workersListener: ListenerRegistration? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -66,11 +70,13 @@ class Profile : AppCompatActivity() {
         binding.buttonEditProfile.setOnClickListener {
             ProfileDF().show(supportFragmentManager, "ProfileDF")
         }
+
         binding.AddWorker.setOnClickListener {
             worker_dialog_fragment().show(supportFragmentManager, "worker_dialog_fragment")
         }
+
         binding.imageViewProfilePicture.setOnClickListener {
-            checkStoragePermission()
+            showImagePickerOptions()
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -81,60 +87,146 @@ class Profile : AppCompatActivity() {
     }
 
     private fun initImagePicker() {
-        pickImageLauncher = registerForActivityResult(
-            ActivityResultContracts.GetContent()
-        ) { uri: Uri? ->
+        pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.let {
-                Glide.with(this)
-                    .load(it)
-                    .circleCrop()
-                    .into(binding.imageViewProfilePicture)
+                setProfileImage(it)
                 uploadImageToFirebaseStorage(it)
             }
         }
     }
 
-    private fun uploadImageToFirebaseStorage(imageUri: Uri) {
-        auth.currentUser?.uid?.let { uid ->
-            val ref = storage.reference.child("users/$uid/profile.jpg")
-            ref.putFile(imageUri)
-                .addOnSuccessListener {
-                    ref.downloadUrl.addOnSuccessListener { uri ->
-                        saveImageUrlToFirestore(uri.toString())
-                    }
+    private fun showImagePickerOptions() {
+        val options = arrayOf("Camera", "Gallery")
+        AlertDialog.Builder(this)
+            .setTitle("Choose Image Source")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> checkCameraPermission()
+                    1 -> checkStoragePermission()
                 }
-                .addOnFailureListener {
-                    Toast.makeText(this, "Upload failed: ${it.message}", Toast.LENGTH_SHORT).show()
-                }
+            }
+            .show()
+    }
+
+    private fun checkCameraPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 101)
+        } else {
+            openCamera()
         }
     }
 
-    private fun saveImageUrlToFirestore(imageUrl: String) {
-        auth.currentUser?.uid?.let { uid ->
-            db.collection("users").document(uid)
-                .update("profilePicture", imageUrl)
-                .addOnSuccessListener {
-                    Toast.makeText(this, "Profile picture updated", Toast.LENGTH_SHORT).show()
-                }
-                .addOnFailureListener {
-                    Toast.makeText(this, "Failed to update profile picture", Toast.LENGTH_SHORT).show()
-                }
+    private fun openCamera() {
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        startActivityForResult(intent, 102)
+    }
+
+    private fun getImageUriFromBitmap(bitmap: Bitmap): Uri {
+        val file = File.createTempFile("camera_image", ".jpg", cacheDir)
+        val out = FileOutputStream(file)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+        out.flush()
+        out.close()
+        return Uri.fromFile(file)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 102 && resultCode == RESULT_OK) {
+            val imageBitmap = data?.extras?.get("data") as? Bitmap
+            imageBitmap?.let {
+                val uri = getImageUriFromBitmap(it)
+                setProfileImage(uri)
+                uploadImageToFirebaseStorage(uri)
+            }
         }
+    }
+
+    private fun setProfileImage(uri: Uri) {
+        Glide.with(this)
+            .load(uri)
+            .circleCrop()
+            .into(binding.imageViewProfilePicture)
+    }
+
+    private fun uploadImageToFirebaseStorage(imageUri: Uri) {
+        val user = auth.currentUser
+        if (user == null) return handleAuthExpired()
+
+        val ref = storage.reference.child("users/${user.uid}/profile.jpg")
+        ref.putFile(imageUri)
+            .addOnCompleteListener { task ->
+                if (!task.isSuccessful || task.exception != null) {
+                    Toast.makeText(this,
+                        "Upload failed: ${task.exception?.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@addOnCompleteListener
+                }
+                ref.downloadUrl
+                    .addOnSuccessListener { uri ->
+                        saveImageUrlToFirestore(uri.toString())
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this,
+                            "Could not fetch image URL: ${e.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this,
+                    "Storage error: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+    }
+
+    private fun saveImageUrlToFirestore(imageUrl: String) {
+        val user = auth.currentUser
+        if (user == null) return handleAuthExpired()
+
+        db.collection("users")
+            .document(user.uid)
+            .set(mapOf("profilePicture" to imageUrl), SetOptions.merge())
+            .addOnSuccessListener {
+                Toast.makeText(this,
+                    "Profile picture updated",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this,
+                    "Failed to save profile picture: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+    }
+
+    private fun handleAuthExpired() {
+        auth.signOut()
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
+        Toast.makeText(this,
+            "Session expired—please sign in again.",
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     private fun setupRecyclerView() {
         workerAdapter = WorkerAdapter(emptyList())
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(this@Profile)
-            adapter       = workerAdapter
+            adapter = workerAdapter
         }
         attachSwipeToDelete()
     }
 
     private fun attachSwipeToDelete() {
         val swipeCallback = object : ItemTouchHelper.SimpleCallback(
-            0,
-            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+            0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
         ) {
             override fun onMove(
                 recyclerView: RecyclerView,
@@ -143,14 +235,17 @@ class Profile : AppCompatActivity() {
             ) = false
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val pos      = viewHolder.adapterPosition
+                val pos = viewHolder.adapterPosition
                 val snapshot = workerAdapter.getSnapshot(pos)
                 snapshot.reference.delete()
                     .addOnSuccessListener {
                         Toast.makeText(this@Profile, "Worker deleted", Toast.LENGTH_SHORT).show()
                     }
                     .addOnFailureListener { e ->
-                        Toast.makeText(this@Profile, "Delete failed: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@Profile,
+                            "Delete failed: ${e.localizedMessage}",
+                            Toast.LENGTH_LONG
+                        ).show()
                         workerAdapter.notifyItemChanged(pos)
                     }
             }
@@ -159,35 +254,34 @@ class Profile : AppCompatActivity() {
     }
 
     private fun getUserData() {
-        auth.currentUser?.uid?.let { uid ->
-            userListener = db.collection("users").document(uid)
-                .addSnapshotListener { doc, err ->
-                    if (err != null) {
-                        Toast.makeText(this, err.localizedMessage, Toast.LENGTH_SHORT).show()
-                        return@addSnapshotListener
-                    }
-                    if (doc != null && doc.exists()) {
-                        binding.UserNameProfile.setText(doc.getString("userName"))
-                        binding.companyNameProfile.setText(doc.getString("companyName"))
-                        doc.getString("profilePicture")?.let { url ->
-                            Glide.with(this).load(url).circleCrop().into(binding.imageViewProfilePicture)
-                        }
+        val user = auth.currentUser ?: return handleAuthExpired()
+        userListener = db.collection("users").document(user.uid)
+            .addSnapshotListener { doc, err ->
+                if (err != null) {
+                    Toast.makeText(this, err.localizedMessage, Toast.LENGTH_SHORT).show()
+                    return@addSnapshotListener
+                }
+                if (doc != null && doc.exists()) {
+                    binding.UserNameProfile.setText(doc.getString("userName"))
+                    binding.companyNameProfile.setText(doc.getString("companyName"))
+                    doc.getString("profilePicture")?.let { url ->
+                        Glide.with(this).load(url).circleCrop()
+                            .into(binding.imageViewProfilePicture)
                     }
                 }
-        }
+            }
     }
 
     private fun listenToWorkers() {
-        auth.currentUser?.uid?.let { uid ->
-            workersListener = db.collection("users/$uid/workers")
-                .addSnapshotListener { snap, err ->
-                    if (err != null) {
-                        Toast.makeText(this, err.localizedMessage, Toast.LENGTH_SHORT).show()
-                        return@addSnapshotListener
-                    }
-                    workerAdapter.updateSnapshots(snap?.documents ?: emptyList())
+        val user = auth.currentUser ?: return handleAuthExpired()
+        workersListener = db.collection("users/${user.uid}/workers")
+            .addSnapshotListener { snap, err ->
+                if (err != null) {
+                    Toast.makeText(this, err.localizedMessage, Toast.LENGTH_SHORT).show()
+                    return@addSnapshotListener
                 }
-        }
+                workerAdapter.updateSnapshots(snap?.documents ?: emptyList())
+            }
     }
 
     private fun checkStoragePermission() {
@@ -195,7 +289,9 @@ class Profile : AppCompatActivity() {
             Manifest.permission.READ_MEDIA_IMAGES
         } else Manifest.permission.READ_EXTERNAL_STORAGE
 
-        if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, permission)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
             ActivityCompat.requestPermissions(this, arrayOf(permission), 1)
         } else {
             pickImageLauncher.launch("image/*")
@@ -203,14 +299,21 @@ class Profile : AppCompatActivity() {
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 1 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            pickImageLauncher.launch("image/*")
-        } else Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show()
+        when (requestCode) {
+            1 -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                pickImageLauncher.launch("image/*")
+            } else {
+                Toast.makeText(this, "Storage permission denied", Toast.LENGTH_SHORT).show()
+            }
+            101 -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openCamera()
+            } else {
+                Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -229,36 +332,44 @@ class Profile : AppCompatActivity() {
             .setTitle("Delete Account")
             .setMessage("Are you sure? This cannot be undone.")
             .setView(input)
-            .setPositiveButton("Delete") { _, _ -> confirmDelete(input.text.toString()) }
+            .setPositiveButton("Delete") { _, _ ->
+                confirmDelete(input.text.toString())
+            }
             .setNegativeButton("Cancel", null)
             .show()
     }
 
     private fun confirmDelete(password: String) {
         CoroutineScope(Dispatchers.Main).launch {
-            auth.currentUser?.let { user ->
-                try {
-                    userListener?.remove()
-                    workersListener?.remove()
-                    val cred = EmailAuthProvider.getCredential(user.email ?: "", password)
-                    user.reauthenticate(cred).await()
-                    val uid = user.uid
-                    deleteFirestoreCollection(db, "users/$uid")
-                    db.collection("users").document(uid).delete().await()
-                    deleteStorageFolder(storage, "users/$uid")
-                    user.delete().await()
-                    startActivity(Intent(this@Profile, LoginActivity::class.java))
-                    finish()
-                } catch (e: FirebaseAuthRecentLoginRequiredException) {
-                    Toast.makeText(this@Profile, "Re-login required.", Toast.LENGTH_LONG).show()
-                } catch (e: Exception) {
-                    Toast.makeText(this@Profile, "Deletion failed: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
-                }
+            val user = auth.currentUser ?: return@launch handleAuthExpired()
+            try {
+                userListener?.remove()
+                workersListener?.remove()
+                val cred = EmailAuthProvider.getCredential(user.email ?: "", password)
+                user.reauthenticate(cred).await()
+                val uid = user.uid
+                deleteFirestoreCollection(db, "users/$uid")
+                db.collection("users").document(uid).delete().await()
+                deleteStorageFolder(storage, "users/$uid")
+                user.delete().await()
+                startActivity(Intent(this@Profile, LoginActivity::class.java))
+                finish()
+            } catch (e: FirebaseAuthRecentLoginRequiredException) {
+                Toast.makeText(this@Profile,
+                    "Re-login required.", Toast.LENGTH_LONG
+                ).show()
+            } catch (e: Exception) {
+                Toast.makeText(this@Profile,
+                    "Deletion failed: ${e.localizedMessage}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
 
-    private suspend fun deleteFirestoreCollection(db: FirebaseFirestore, path: String, batchSize: Int = 100) {
+    private suspend fun deleteFirestoreCollection(
+        db: FirebaseFirestore, path: String, batchSize: Int = 100
+    ) {
         while (true) {
             val snap = db.collection(path).limit(batchSize.toLong()).get().await()
             if (snap.isEmpty) break
@@ -267,12 +378,12 @@ class Profile : AppCompatActivity() {
         }
     }
 
-    private suspend fun deleteStorageFolder(storage: FirebaseStorage, folderPath: String) {
+    private suspend fun deleteStorageFolder(
+        storage: FirebaseStorage, folderPath: String
+    ) {
         val ref = storage.reference.child(folderPath)
         val list = ref.listAll().await()
-        list.items.forEach  { it.delete().await() }
+        list.items.forEach { it.delete().await() }
         list.prefixes.forEach { deleteStorageFolder(storage, it.path) }
     }
-
-
 }

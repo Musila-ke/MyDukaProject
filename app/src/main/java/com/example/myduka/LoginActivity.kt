@@ -9,37 +9,32 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.myduka.databinding.ActivityLoginBinding
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
 
 class LoginActivity : AppCompatActivity() {
-    lateinit var loginBinding: ActivityLoginBinding
-    val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private lateinit var loginBinding: ActivityLoginBinding
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         loginBinding = ActivityLoginBinding.inflate(layoutInflater)
-        val view = loginBinding.root
-        setContentView(view)
-
+        setContentView(loginBinding.root)
 
         loginBinding.buttonSignIn.setOnClickListener {
             loginBinding.progressBarSignIn.visibility = View.VISIBLE
             signIn()
-
         }
+
         loginBinding.textViewSignUp.setOnClickListener {
-            val intent = Intent(this,SignUp::class.java)
-            startActivity(intent)
-
+            startActivity(Intent(this, SignUp::class.java))
+            finish() // don’t allow back to Login once going to SignUp
         }
+
         loginBinding.textViewForgotPassword.setOnClickListener {
-            val intent = Intent(this,ForgotPassword::class.java)
-            startActivity(intent)
-
+            startActivity(Intent(this, ForgotPassword::class.java))
+            // keep Login in back‑stack so user can go back after resetting
         }
-
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -47,35 +42,36 @@ class LoginActivity : AppCompatActivity() {
             insets
         }
     }
-    fun signIn(){
-        val email = loginBinding.editTextEmailSignIn.text.toString()
-        val password = loginBinding.editTextPasswordSignIn.text.toString()
-        if(email.isEmpty() || password.isEmpty()){
-            Toast.makeText(this,"Email or Password cannot be empty",Toast.LENGTH_SHORT).show()
+
+    private fun signIn() {
+        val email    = loginBinding.editTextEmailSignIn.text.toString().trim()
+        val password = loginBinding.editTextPasswordSignIn.text.toString().trim()
+
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Email or Password cannot be empty", Toast.LENGTH_SHORT).show()
+            loginBinding.progressBarSignIn.visibility = View.GONE
             return
         }
 
-        auth.signInWithEmailAndPassword(email,password).addOnCompleteListener { task ->
-            if(task.isSuccessful){
-                val intent = Intent(this, PasswordLogin::class.java)
-                startActivity(intent)
-                finish()
-            }else{
-                Toast.makeText(this,task.exception?.localizedMessage,Toast.LENGTH_SHORT).show()
-            }
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                loginBinding.progressBarSignIn.visibility = View.GONE
 
-        }
+                if (task.isSuccessful) {
+                    startActivity(Intent(this, PasswordLogin::class.java))
+                    finish() // remove Login from back‑stack
+                } else {
+                    Toast.makeText(this, task.exception?.localizedMessage, Toast.LENGTH_SHORT).show()
+                }
+            }
     }
 
     override fun onStart() {
         super.onStart()
-        val user = auth.currentUser
-
-        if(user != null){
-            Toast.makeText(this,"Welcome Back",Toast.LENGTH_SHORT).show()
-            val intent = Intent(this,Dashboard::class.java)
-            startActivity(intent)
-            finish()
+        auth.currentUser?.let {
+            Toast.makeText(this, "Welcome Back", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, Dashboard::class.java))
+            finish() // don’t return to Login once Dashboard is shown
         }
     }
 }

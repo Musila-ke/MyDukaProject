@@ -163,4 +163,3 @@ exports.checkExpiredProducts = onSchedule(
       return null;
     },
 );
-

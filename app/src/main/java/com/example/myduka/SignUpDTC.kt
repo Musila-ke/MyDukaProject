@@ -7,5 +7,4 @@ data class SignUpDTC(
     val id: String = "",
     val phoneNumber: String = "",
     val uid: String = ""
-) {
-}
+)

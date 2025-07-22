@@ -26,7 +26,9 @@ class PasswordLogin : AppCompatActivity() {
 
         if (!PinManager.hasPin(this)) {
             Toast.makeText(this, "No PIN found. Please create one.", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this, Password_SignUp::class.java))
+            startActivity(Intent(this, Password_SignUp::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            })
             finish()
             return
         }
@@ -56,6 +58,7 @@ class PasswordLogin : AppCompatActivity() {
 
         binding.textViewforgotpin.setOnClickListener {
             startActivity(Intent(this, ForgotPin::class.java))
+            // do not finish, allow user to come back after resetting
         }
     }
 
@@ -65,9 +68,7 @@ class PasswordLogin : AppCompatActivity() {
             updatePinField()
 
             if (pinBuilder.length == 4) {
-                binding.editTextPinLogIn.postDelayed({
-                    verifyPin()
-                }, 100)
+                binding.editTextPinLogIn.postDelayed({ verifyPin() }, 100)
             }
         }
     }
@@ -80,7 +81,11 @@ class PasswordLogin : AppCompatActivity() {
         try {
             if (PinManager.checkPin(this, pinBuilder.toString())) {
                 Toast.makeText(this, "PIN verified", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, Dashboard::class.java))
+                // Launch Dashboard as a new task, clearing backstack
+                val intent = Intent(this, Dashboard::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                }
+                startActivity(intent)
                 finish()
             } else {
                 Toast.makeText(this, "Incorrect PIN", Toast.LENGTH_SHORT).show()
@@ -89,7 +94,7 @@ class PasswordLogin : AppCompatActivity() {
             }
         } catch (e: Exception) {
             // Key is invalidated (likely due to uninstall/reinstall)
-            val uid = FirebaseAuth.getInstance().currentUser?.uid
+            val uid = auth.currentUser?.uid
             if (uid != null) {
                 getSharedPreferences("app_prefs_$uid", MODE_PRIVATE)
                     .edit()
@@ -98,7 +103,9 @@ class PasswordLogin : AppCompatActivity() {
             }
 
             Toast.makeText(this, "PIN was reset. Please create a new one.", Toast.LENGTH_LONG).show()
-            startActivity(Intent(this, Password_SignUp::class.java))
+            startActivity(Intent(this, Password_SignUp::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            })
             finish()
         }
     }

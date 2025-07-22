@@ -2,6 +2,7 @@ package com.example.myduka
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 import android.util.Base64
 import com.google.firebase.auth.FirebaseAuth
 import java.security.MessageDigest
@@ -52,39 +53,37 @@ object KeyStoreHelper {
             )
             cipher.doFinal(ciphertext)
         } catch (e: Exception) {
-            throw IllegalStateException("Key is invalidated or unavailable", e)
+            throw IllegalStateException("Key unavailable", e)
         }
     }
 }
 
 object PinManager {
-    private const val BASE_PREFS = "app_prefs"
     private const val KEY_SALT_IV   = "pin_salt_iv"
     private const val KEY_SALT_DATA = "pin_salt_data"
     private const val KEY_HASH      = "pin_hash"
     private const val ITERATIONS    = 50_000
     private const val KEY_LENGTH    = 256
 
+    private fun getPrefs(context: Context): SharedPreferences {
+        val user = FirebaseAuth.getInstance().currentUser
+            ?: throw IllegalStateException("Must be signed in to access PIN prefs")
+        val uid     = user.uid
+        val name    = "admin_prefs_$uid"                  // admin tag
+        return context.getSharedPreferences(name, Context.MODE_PRIVATE)
+    }
+
     fun hasPin(context: Context): Boolean {
-        val user = FirebaseAuth.getInstance().currentUser ?: return false
-        val prefsName = "${BASE_PREFS}_${user.uid}"
-        val prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
-        return prefs.contains(KEY_HASH)
+        return getPrefs(context).contains(KEY_HASH)
     }
 
     @SuppressLint("ApplySharedPref")
     fun setPin(context: Context, pin: String) {
-        val user = FirebaseAuth.getInstance().currentUser
-            ?: throw IllegalStateException("User must be signed in to set PIN")
-        val uid = user.uid
-
         val salt = ByteArray(16).also { SecureRandom().nextBytes(it) }
         val (iv, ciphertext) = KeyStoreHelper.encrypt(salt)
         val hash = pbkdf2(pin, salt)
 
-        val prefsName = "${BASE_PREFS}_$uid"
-        context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
-            .edit()
+        getPrefs(context).edit()
             .putString(KEY_SALT_IV,   Base64.encodeToString(iv, Base64.NO_WRAP))
             .putString(KEY_SALT_DATA, Base64.encodeToString(ciphertext, Base64.NO_WRAP))
             .putString(KEY_HASH,      Base64.encodeToString(hash, Base64.NO_WRAP))
@@ -92,12 +91,7 @@ object PinManager {
     }
 
     fun checkPin(context: Context, attempt: String): Boolean {
-        val user = FirebaseAuth.getInstance().currentUser ?: return false
-        val uid = user.uid
-
-        val prefsName = "${BASE_PREFS}_$uid"
-        val prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
-
+        val prefs = getPrefs(context)
         return try {
             val ivB64   = prefs.getString(KEY_SALT_IV,   null) ?: return false
             val dataB64 = prefs.getString(KEY_SALT_DATA, null) ?: return false
@@ -111,8 +105,7 @@ object PinManager {
 
             MessageDigest.isEqual(expected, attemptHash)
         } catch (e: Exception) {
-            // If decryption fails (KeyStore key deleted or corrupted), clear prefs
-            prefs.edit().clear().apply()
+            getPrefs(context).edit().clear().apply()
             false
         }
     }
