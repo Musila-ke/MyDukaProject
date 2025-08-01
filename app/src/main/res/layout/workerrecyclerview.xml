@@ -45,11 +45,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:ellipsize="end"
-<<<<<<< HEAD
             android:maxLines="3"
-=======
-            android:maxLines="1"
->>>>>>> 0199aa4cd00cbe71791ed8d2b830cb9e88d1463a
             android:text="Status"
             android:textColor="?attr/colorPrimaryVariant"
             android:textSize="16sp" />

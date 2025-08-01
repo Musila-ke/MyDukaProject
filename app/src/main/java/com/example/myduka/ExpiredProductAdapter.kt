@@ -1,4 +1,3 @@
-// ExpiredProductsAdapter.kt
 package com.example.myduka
 
 import android.graphics.Color

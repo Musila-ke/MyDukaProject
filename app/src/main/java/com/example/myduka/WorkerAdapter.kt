@@ -1,22 +1,16 @@
 package com.example.myduka
 
-<<<<<<< HEAD
 import android.location.Address
 import android.location.Geocoder
-=======
->>>>>>> 0199aa4cd00cbe71791ed8d2b830cb9e88d1463a
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myduka.databinding.WorkerrecyclerviewBinding
 import com.google.firebase.firestore.DocumentSnapshot
-<<<<<<< HEAD
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-=======
->>>>>>> 0199aa4cd00cbe71791ed8d2b830cb9e88d1463a
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -34,25 +28,17 @@ class WorkerAdapter(
         return WorkerViewHolder(binding)
     }
 
-<<<<<<< HEAD
     override fun getItemCount(): Int = workerSnapshots.size
 
     override fun onBindViewHolder(holder: WorkerViewHolder, position: Int) {
         val doc = workerSnapshots[position]
         val ctx = holder.binding.root.context
 
-        // Basic fields
-=======
-    override fun onBindViewHolder(holder: WorkerViewHolder, position: Int) {
-        val doc = workerSnapshots[position]
-
         // Basic info
->>>>>>> 0199aa4cd00cbe71791ed8d2b830cb9e88d1463a
         holder.binding.workerEmail.text    = doc.getString("workerEmail") ?: "No Email"
         holder.binding.workerName.text     = doc.getString("workerName")  ?: "No Name"
         holder.binding.branchPosition.text = doc.getString("branchName")  ?: "No Branch"
 
-<<<<<<< HEAD
         // Timestamps & GeoPoints
         val inTime  = doc.getTimestamp("lastCheckInTime")?.toDate()
         val outTime = doc.getTimestamp("lastCheckOutTime")?.toDate()
@@ -101,58 +87,10 @@ class WorkerAdapter(
         }
     }
 
-=======
-        // Pull both timestamps
-        val inDate  = doc.getTimestamp("lastCheckInTime")?.toDate()
-        val outDate = doc.getTimestamp("lastCheckOutTime")?.toDate()
-        val fmt     = SimpleDateFormat("hh:mm a, dd MMM yyyy", Locale.getDefault())
-
-        // Decide which to show: if outDate is null or inDate is newer, show check‑in; else check‑out
-        val displayText: String
-        val isCheckedIn: Boolean
-        when {
-            inDate == null && outDate == null -> {
-                displayText  = "No check‑in/out yet"
-                isCheckedIn  = false
-            }
-            outDate == null -> {
-                displayText  = "Last check‑in: ${fmt.format(inDate)}"
-                isCheckedIn  = true
-            }
-            inDate == null -> {
-                displayText  = "Last check‑out: ${fmt.format(outDate)}"
-                isCheckedIn  = false
-            }
-            inDate.after(outDate) -> {
-                displayText  = "Last check‑in: ${fmt.format(inDate)}"
-                isCheckedIn  = true
-            }
-            else -> {
-                displayText  = "Last check‑out: ${fmt.format(outDate)}"
-                isCheckedIn  = false
-            }
-        }
-
-        // Set text + color
-        holder.binding.workerStatus.text = displayText
-        val colorRes = if (isCheckedIn) R.color.green else R.color.red
-        holder.binding.workerStatus.setTextColor(
-            ContextCompat.getColor(holder.binding.root.context, colorRes)
-        )
-    }
-
-    override fun getItemCount(): Int = workerSnapshots.size
-
     fun getSnapshot(position: Int): DocumentSnapshot = workerSnapshots[position]
 
->>>>>>> 0199aa4cd00cbe71791ed8d2b830cb9e88d1463a
     fun updateSnapshots(newSnapshots: List<DocumentSnapshot>) {
         workerSnapshots = newSnapshots
         notifyDataSetChanged()
     }
-<<<<<<< HEAD
-
-    fun getSnapshot(position: Int): DocumentSnapshot = workerSnapshots[position]
-=======
->>>>>>> 0199aa4cd00cbe71791ed8d2b830cb9e88d1463a
 }

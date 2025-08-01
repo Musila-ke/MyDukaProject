@@ -1,4 +1,4 @@
-package com.example.mydukaworker
+package com.example.myduka
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myduka.databinding.ItemSalesHistoryBinding
+import com.example.mydukaworker.SaleItem
+import com.example.mydukaworker.SaleLineAdapter
 import java.text.SimpleDateFormat
 import java.util.Locale
 

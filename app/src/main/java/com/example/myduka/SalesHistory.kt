@@ -1,20 +1,15 @@
 package com.example.myduka
 
 import android.os.Bundle
-<<<<<<< HEAD
 import android.util.TypedValue
-=======
->>>>>>> 0199aa4cd00cbe71791ed8d2b830cb9e88d1463a
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-<<<<<<< HEAD
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myduka.databinding.ActivitySalesHistoryBinding
 import com.example.mydukaworker.SaleItem
 import com.example.mydukaworker.SaleLineItem
-import com.example.mydukaworker.SalesAdapter
 import com.google.android.gms.tasks.Task
 import com.google.android.material.chip.Chip
 import com.google.firebase.Timestamp
@@ -236,18 +231,4 @@ class SalesHistory : AppCompatActivity() {
 
     private enum class Filter { TODAY, WEEK, MONTH, ALL }
 }
-=======
 
-class SalesHistory : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_sales_history)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-    }
-}
->>>>>>> 0199aa4cd00cbe71791ed8d2b830cb9e88d1463a

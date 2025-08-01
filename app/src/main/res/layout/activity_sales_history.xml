@@ -5,7 +5,6 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-<<<<<<< HEAD
     android:padding="16dp"
     tools:context=".SalesHistory">
 
@@ -82,8 +81,5 @@
         tools:listitem="@layout/item_sales_history" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-=======
-    tools:context=".SalesHistory">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
->>>>>>> 0199aa4cd00cbe71791ed8d2b830cb9e88d1463a
+

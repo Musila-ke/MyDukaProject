@@ -58,15 +58,14 @@ class Dashboard : AppCompatActivity() {
         binding.about.setOnClickListener {
             startActivity(Intent(this, About::class.java))
         }
-<<<<<<< HEAD
+
         binding.salesHistory.setOnClickListener {
             startActivity(Intent(this,SalesHistory::class.java))
         }
         binding.earnings.setOnClickListener {
             startActivity(Intent(this,Earnings::class.java))
         }
-=======
->>>>>>> 0199aa4cd00cbe71791ed8d2b830cb9e88d1463a
+
 
         // 5️⃣ Handle window insets for your root view
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
