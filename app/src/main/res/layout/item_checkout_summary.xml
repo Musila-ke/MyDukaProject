@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp">
+
+    <!-- Product/Service name -->
+    <TextView
+        android:id="@+id/tvSummaryName"
+        android:layout_width="0dp"
+        android:layout_weight="2"
+        android:layout_height="wrap_content"
+        android:text="Item Name"
+        android:textColor="?attr/colorSecondaryVariant"
+        android:textSize="16sp"
+        android:textStyle="bold"/>
+
+    <!-- Quantity -->
+    <TextView
+        android:id="@+id/tvSummaryQty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="x2"
+        android:textColor="?attr/colorSecondaryVariant"
+        android:layout_marginStart="8dp"
+        android:textSize="14sp"/>
+
+    <!-- Line total -->
+    <TextView
+        android:id="@+id/tvSummaryLineTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="KES 200.00"
+        android:layout_marginStart="16dp"
+        android:textSize="14sp"
+        android:textColor="?attr/colorSecondaryVariant"
+        android:textStyle="bold"/>
+</LinearLayout>

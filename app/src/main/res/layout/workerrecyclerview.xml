@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <!-- Worker Layout containing TextViews in a vertical stack -->
+    <LinearLayout
+        android:id="@+id/WorkerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="40dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="vertical">
+
+        <!-- Worker Email -->
+        <TextView
+            android:id="@+id/workerEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:ellipsize="end"
+            android:hint="Worker Email"
+            android:maxLines="1"
+            android:textColor="?attr/colorPrimaryVariant"
+            android:textColorHint="?attr/colorPrimaryVariant"
+            android:textSize="16sp" />
+
+        <!-- Worker Status -->
+        <TextView
+            android:id="@+id/workerName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Name"
+            android:textColor="?attr/colorPrimaryVariant"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/workerStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:ellipsize="end"
+<<<<<<< HEAD
+            android:maxLines="3"
+=======
+            android:maxLines="1"
+>>>>>>> 0199aa4cd00cbe71791ed8d2b830cb9e88d1463a
+            android:text="Status"
+            android:textColor="?attr/colorPrimaryVariant"
+            android:textSize="16sp" />
+
+        <!-- Branch Position -->
+        <TextView
+            android:id="@+id/branchPosition"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Branch"
+            android:textColor="?attr/colorPrimaryVariant" />
+
+    </LinearLayout>
+</LinearLayout>

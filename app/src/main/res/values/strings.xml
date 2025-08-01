@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">MyDuka(Admin)</string>
+    <string name="signIn_sup">Already have an account?    <font color="#5483B3"><b><u>log in</u></b></font></string>
+
+
+    <string name="signIn">Sign In</string>
+    <string name="signup">Dont have an account?    <font color="#5483B3"><b><u>sign up</u></b></font></string>
+    <string name="forgotpassword"><u>Forgot Password?</u></string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="shopName">Shop Name</string>
+    <string name="fullName">Full Name</string>
+    <string name="createAccount">CREATE ACCOUNT</string>
+    <string name="registrationMessage">Complete registration to continue</string>
+
+    <string name="enterPin">Enter Pin</string>
+
+
+    <string name="signInMessage">Sign In To Continue</string>
+    <string name="WelcomeBack">Welcome Back</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

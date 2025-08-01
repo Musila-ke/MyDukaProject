@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "265377863805",
+    "project_id": "myduka-df394",
+    "storage_bucket": "myduka-df394.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:265377863805:android:1782f8ecc4eb1c5e9fb914",
+        "android_client_info": {
+          "package_name": "com.example.myduka"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD16wGXRVHMSjC9EBHyEjQXBOff3sci4J8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
